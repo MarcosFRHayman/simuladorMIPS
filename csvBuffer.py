@@ -21,11 +21,20 @@ class CSVBuffer:
         for row in self.rows:
             row[field] = self.default_value
 
-    def avancaCiclo(self):
+    def avancaCiclo(self, reseta_valores=True):
         self.ciclo += 1
         self.rows.append({})
-        self.gerarRowVazia()
+        if reseta_valores:
+            self.gerarRowVazia()
+        else:
+            self.gerarRowCopiada()
     
+    def gerarRowCopiada(self):
+        currentRow = self.rows[self.ciclo]
+        for field in self.fields:            
+            currentRow[field] = self.rows[self.ciclo - 1][field]
+        currentRow["ciclo"] = self.ciclo
+
     def setValorDaColuna(self, field, value):
         self.rows[self.ciclo][field] = value
 

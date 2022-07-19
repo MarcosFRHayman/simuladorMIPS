@@ -1,5 +1,8 @@
+from registradores import Registradores
+
+
 class InstrucaoPrototipo:
-    def __init__(self, pipeline, memoria, registradores) -> None:
+    def __init__(self, pipeline, memoria, registradores: Registradores) -> None:
         self.pipeline = pipeline
         self.memoria = memoria
         self.registradores = registradores
@@ -41,14 +44,37 @@ class TipoR(Instrucao):
 
     def EX(self):
         super().EX()
-        self.result = self.comando(self.args[1], self.args[2], self.args[2])
-        print(self.result)
+        rs = self.prototipo.registradores.getValorDoRegistrador(self.args[1])
+        rd = self.prototipo.registradores.getValorDoRegistrador(self.args[2])
+        shamt = None
+        try:
+            shamt = int(self.args[2])
+        except ValueError:
+            pass
+        if self.comando != None:
+            self.result = self.comando(rs, rd, shamt)
+            print(self.result)
+    
+    def MEM(self):
+        super().MEM()
+        self.prototipo.registradores.setValorDoRegistrador(self.args[0], self.result)
 
 
 class TipoI(Instrucao):
     def __init__(self, args, posicao, comando, desc, prototipo) -> None:
         super().__init__(args, posicao, desc, prototipo)
         self.comando = comando
+    
+    def EX(self):
+        super().EX()
+        rs = self.prototipo.registradores.getValorDoRegistrador(self.args[1])
+        if self.comando != None:
+            self.result = self.comando(rs, int(self.args[2]), int(self.args[2]))
+            print(self.result)
+    
+    def MEM(self):
+        super().MEM()
+        self.prototipo.registradores.setValorDoRegistrador(self.args[0], self.result)
 
 class TipoJ(Instrucao):
     def __init__(self, args, posicao, desc, prototipo) -> None:

@@ -36,5 +36,10 @@ class Pipeline:
         self.buffer.setValorDaColuna("PC", 1)
 
     def executaAcoesDaPipeline(self):
+        self.IF.IF()
+        self.ID.ID()
         self.EX.EX()
+        self.MEM.MEM()
+        self.WB.WB()
+
         
