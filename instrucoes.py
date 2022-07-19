@@ -60,7 +60,6 @@ class TipoR(Instrucao):
             rd = self.prototipo.registradores.getValorDoRegistrador(self.args[2])
         if self.comando != None:
             self.result = self.comando(rs, rd, shamt)
-            print(self.result)
     
     def WB(self):
         super().WB()
@@ -76,7 +75,6 @@ class TipoI(Instrucao):
         rs = self.prototipo.registradores.getValorDoRegistrador(self.args[1])
         if self.comando != None:
             self.result = self.comando(rs, int(self.args[2]), int(self.args[2]))
-            print(self.result)
     
     def WB(self):
         self.prototipo.registradores.setValorDoRegistrador(self.args[0], self.result)
