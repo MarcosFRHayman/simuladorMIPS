@@ -1,32 +1,30 @@
-from csv import DictWriter
+from analisador import Analisador
 from csvBuffer import CSVBuffer
+from instrucoes import NOP, geraInstrucao
+from pipeline import Pipeline
 
 
-pipelineBuffer = CSVBuffer("pipeline.csv", ["ID", "IF", "EX", "MEM", "WB"], "NOP" )
+analisador = Analisador()
+pipelineBuffer = CSVBuffer("resources/pipeline.csv", ["IF", "ID", "EX", "MEM", "WB", "PC"], "NOP" )
+pipeline = Pipeline(pipelineBuffer, analisador)
 
-registradoresBuffer = CSVBuffer(
-    "registradores.csv",
-    ["$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3", "$t0", "$t1",
+registradores = ["$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3", "$t0", "$t1",
     "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$s0", "$s1", "$s2", "$s3", "$s4",
-    "$s5", "$s6","$s7", "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"],
-    0)
+    "$s5", "$s6","$s7", "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"]
+registradoresBuffer = CSVBuffer("resources/registradores.csv", registradores, 0)
 
-memoriaBuffer = CSVBuffer("memoria.csv", [], 0)
+memoriaBuffer = CSVBuffer("resources/memoria.csv", [], 0)
 
-pipelineBuffer.generateFile()
-registradoresBuffer.generateFile()
-memoriaBuffer.generateFile()
+nome_arquivo_asm = input("Digite o nome do arquivo de entrada:\n")
+instrucoes = analisador.analisaArquivo(nome_arquivo_asm)
+for instrucao  in instrucoes:
+    pipeline.avancaPipeline(instrucao)
+    pipeline.executaAcoesDaPipeline()
+for i in range(4):
+    pipeline.avancaPipeline(NOP())
+    pipeline.executaAcoesDaPipeline()
 
 
-# with open("registradores.csv", "w") as csvfile:
-#     writer = DictWriter(csvfile, 
-#         ["ciclo", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3", "$t0", "$t1",
-#         "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$s0", "$s1", "$s2", "$s3", "$s4",
-#          "$s5", "$s6","$s7", "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"])
-#     writer.writeheader()
-
-# with open("memoria.csv", "w") as csvfile:
-#     writer = DictWriter(csvfile, 
-#         ["ciclo", ""])
-#     writer.writeheader()
-    
+pipelineBuffer.geraArquivo()
+registradoresBuffer.geraArquivo()
+memoriaBuffer.geraArquivo()
