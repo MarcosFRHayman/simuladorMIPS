@@ -24,11 +24,12 @@ class Pipeline:
         self.ID = self.IF
         self.IF = instrucao
 
-        # Trata arquivo
+        # Trata arquivo csv
         IF = self.buffer.getValorDaColuna("IF")
         ID = self.buffer.getValorDaColuna("ID")
         EX = self.buffer.getValorDaColuna("EX")
         MEM = self.buffer.getValorDaColuna("MEM")
+        
         self.buffer.avancaCiclo()
 
         self.buffer.setValorDaColuna("WB", MEM)

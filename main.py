@@ -28,7 +28,7 @@ analisador.setPrototipo(InstrucaoPrototipo(pipeline, mp, bancoDeRegistradores))
 pipeline.setAnalisador(analisador)
 
 # nome_arquivo_asm = input("Digite o nome do arquivo de entrada:\n")
-nome_arquivo_asm = "resources/teste"
+nome_arquivo_asm = "resources/multiplicacao"
 instrucoes = analisador.analisaArquivo(nome_arquivo_asm)
 
 pc = bancoDeRegistradores.getValorDoRegistrador("PC")
@@ -36,10 +36,6 @@ while (pc / 4 < len(instrucoes)):
         instrucao = instrucoes[int(pc/4)]
         pipeline.avancaPipeline(instrucao)
         pipeline.executaAcoesDaPipeline()
-        # pc = bancoDeRegistradores.getValorDoRegistrador("PC")
-        # try:
-        # except IndexError:
-        #     instrucao = NOP("NOP", analisador.prototipo)
         bancoDeRegistradores.avancaCiclo()
         mp.avancaCiclo()
         pc = bancoDeRegistradores.getValorDoRegistrador("PC")

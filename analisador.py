@@ -20,7 +20,6 @@ class Analisador:
                 if len(split_label) > 1:
                     self.map_de_label[split_label[0].upper().strip()] = i
                 construtores_de_instrucao.append(self.analisaLinha(linha.strip(), i))
-        print(self.map_de_label)
         return construtores_de_instrucao
 
     def analisaLinha(self, linha: str, i) -> Instrucao:

@@ -52,12 +52,12 @@ class TipoR(Instrucao):
     def EX(self):
         super().EX()
         rs = self.prototipo.registradores.getValorDoRegistrador(self.args[1])
-        rd = self.prototipo.registradores.getValorDoRegistrador(self.args[2])
+        rd = None
         shamt = None
         try:
             shamt = int(self.args[2])
         except ValueError:
-            pass
+            rd = self.prototipo.registradores.getValorDoRegistrador(self.args[2])
         if self.comando != None:
             self.result = self.comando(rs, rd, shamt)
             print(self.result)
@@ -96,10 +96,6 @@ class TipoJ(Instrucao):
         self.prototipo.registradores.setValorDoRegistrador("PC", enderecoAlvo)
         
 
-class Branch(TipoI):
-    def __init__(self, args, posicao, condicao, desc, prototipo) -> None:
-        super().__init__(args, posicao, None, desc, prototipo)
-        self.condicao = condicao
 
 class LW(TipoI):
     def __init__(self, args, posicao, desc, prototipo) -> None:
@@ -139,6 +135,30 @@ class SW(TipoI):
         #remove o fecha parenteses
         reg = reg[:-1]
         return int(imediato) + self.prototipo.registradores.getValorDoRegistrador(reg)
+
+class Branch(TipoI):
+    def __init__(self, args, posicao, condicao, desc, prototipo) -> None:
+        super().__init__(args, posicao, None, desc, prototipo)
+        self.condicao = condicao
+    
+    def ID(self):
+        super().ID()
+        registradores = self.prototipo.registradores
+        rs = registradores.getValorDoRegistrador(self.args[0])
+        rt = registradores.getValorDoRegistrador(self.args[1])
+        enderecoAlvo = self.args[2]
+        if (type(enderecoAlvo) is int):
+            enderecoAlvo = enderecoAlvo * 4
+        elif(type(enderecoAlvo) is str):
+            enderecoAlvo = self.prototipo.analisador.getEnderecoDeLabel(enderecoAlvo.upper().strip())
+            enderecoAlvo = int(enderecoAlvo) * 4
+        if self.condicao(rs, rt):
+            registradores.setValorDoRegistrador("PC", enderecoAlvo)
+    
+    def EX(self):
+        pass
+    def WB(self):
+        pass
 
 class JAL(TipoJ):
     def __init__(self, args, posicao, desc, prototipo) -> None:
