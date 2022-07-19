@@ -1,3 +1,4 @@
+from cmath import e
 from analisador import Analisador
 from csvBuffer import CSVBuffer
 from instrucoes import NOP, InstrucaoPrototipo, geraInstrucao
@@ -7,7 +8,7 @@ from registradores import Registradores
 
 
 analisador = Analisador()
-
+ 
 # Inicia Pipeline
 pipelineBuffer = CSVBuffer("resources/pipeline.csv", ["IF", "ID", "EX", "MEM", "WB"], "NOP" )
 pipeline = Pipeline(pipelineBuffer)
@@ -32,16 +33,21 @@ instrucoes = analisador.analisaArquivo(nome_arquivo_asm)
 
 pc = bancoDeRegistradores.getValorDoRegistrador("PC")
 while (pc / 4 < len(instrucoes)):
-    instrucao = instrucoes[int(pc/4)]
-    pipeline.executaAcoesDaPipeline()
-    pipeline.avancaPipeline(instrucao)
-    bancoDeRegistradores.avancaCiclo()
-    mp.avancaCiclo()
-    pc = bancoDeRegistradores.getValorDoRegistrador("PC")
+        pipeline.executaAcoesDaPipeline()
+        pc = bancoDeRegistradores.getValorDoRegistrador("PC")
+        try:
+            instrucao = instrucoes[int(pc/4)]
+        except IndexError:
+            instrucao = NOP("NOP", analisador.prototipo)
+        pipeline.avancaPipeline(instrucao)
+        bancoDeRegistradores.avancaCiclo()
+        mp.avancaCiclo()
+        pc = bancoDeRegistradores.getValorDoRegistrador("PC")
+
 
 for i in range(4):
     pipeline.executaAcoesDaPipeline()
-    pipeline.avancaPipeline(NOP(analisador.prototipo))
+    pipeline.avancaPipeline(NOP("NOP", analisador.prototipo))
     bancoDeRegistradores.avancaCiclo()
     mp.avancaCiclo()
 pipeline.executaAcoesDaPipeline()

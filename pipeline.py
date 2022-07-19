@@ -10,11 +10,11 @@ class Pipeline:
 
     def setAnalisador(self, analisador: Analisador):
         self.analisador = analisador
-        self.ID = NOP(analisador.prototipo)
-        self.IF = NOP(analisador.prototipo)
-        self.EX = NOP(analisador.prototipo)
-        self.MEM = NOP(analisador.prototipo)
-        self.WB = NOP(analisador.prototipo)
+        self.ID = NOP("NOP", analisador.prototipo)
+        self.IF = NOP("NOP", analisador.prototipo)
+        self.EX = NOP("NOP", analisador.prototipo)
+        self.MEM = NOP("NOP", analisador.prototipo)
+        self.WB = NOP("NOP", analisador.prototipo)
 
     def avancaPipeline(self, instrucao: Instrucao):
         #trata variáveis

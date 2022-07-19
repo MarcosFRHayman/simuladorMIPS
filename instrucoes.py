@@ -7,6 +7,9 @@ class InstrucaoPrototipo:
         self.pipeline = pipeline
         self.memoria = memoria
         self.registradores = registradores
+    
+    def setAnalisador(self, analisador):
+        self.analisador = analisador
 
 class Instrucao:
     def __init__(self, args, posicao, desc, prototipo: InstrucaoPrototipo) -> None:
@@ -37,8 +40,8 @@ class Instrucao:
 
 #========= SUB-CLASSES DE INSTRUÇÃO ===========
 class NOP(Instrucao):
-    def __init__(self, prototipo) -> None:
-        super().__init__(None, None, "NOP", prototipo)
+    def __init__(self, desc, prototipo) -> None:
+        super().__init__(None, None, desc, prototipo)
         
 
 class TipoR(Instrucao):
@@ -83,6 +86,17 @@ class TipoI(Instrucao):
 class TipoJ(Instrucao):
     def __init__(self, args, posicao, desc, prototipo) -> None:
         super().__init__(args, posicao, desc, prototipo)
+    
+    def ID(self):
+        super().ID()
+        enderecoAlvo = self.args[0]
+        if (type(enderecoAlvo) is int):
+            enderecoAlvo = enderecoAlvo * 4
+        elif(type(enderecoAlvo) is str):
+            enderecoAlvo = self.prototipo.analisador.getEnderecoDeLabel(enderecoAlvo.upper().strip())
+            enderecoAlvo = int(enderecoAlvo) * 4
+        self.prototipo.registradores.setValorDoRegistrador("PC", enderecoAlvo)
+        
 
 class Branch(TipoI):
     def __init__(self, args, posicao, condicao, desc, prototipo) -> None:
@@ -149,7 +163,7 @@ MAP_DE_INSTRUCOES = {
     "SRL": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x / (2 ** shamt), desc, prototipo),
     "SW": lambda args, posicao, desc, prototipo: SW(args, posicao, desc, prototipo),
     "SUB": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x - y, desc, prototipo),
-    "NOP":  lambda args, posicao, desc, prototipo: NOP(prototipo)
+    "NOP":  lambda args, posicao, desc, prototipo: NOP(desc, prototipo)
 }
 
 def geraInstrucao(nome: str, args, posicao, desc: str, prototipo) -> Instrucao:

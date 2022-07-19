@@ -7,6 +7,7 @@ class Analisador:
 
     def setPrototipo(self, prototipo):
         self.prototipo = prototipo
+        prototipo.setAnalisador(self)
 
     def analisaArquivo(self, nome_arquivo_asm) -> list:
         construtores_de_instrucao = []
@@ -17,8 +18,9 @@ class Analisador:
                 split_label = linha.split(": ")
                 #Se tem mais de um então o padrão foi encontrado, logo há uma label na posição
                 if len(split_label) > 1:
-                    self.map_de_label[split_label[0]] = i
+                    self.map_de_label[split_label[0].upper().strip()] = i
                 construtores_de_instrucao.append(self.analisaLinha(linha.strip(), i))
+        print(self.map_de_label)
         return construtores_de_instrucao
 
     def analisaLinha(self, linha: str, i) -> Instrucao:
@@ -31,4 +33,7 @@ class Analisador:
             return geraInstrucao(id_instrucao, argumentos, i + 1, linha, self.prototipo)
         except ValueError:
             #Gera o NOP
-            return geraInstrucao(separacao[0], None, i + 1, separacao[0], self.prototipo)
+            return geraInstrucao(separacao[0], None, i + 1, linha, self.prototipo)
+    
+    def getEnderecoDeLabel(self, label):
+        return self.map_de_label[label]
