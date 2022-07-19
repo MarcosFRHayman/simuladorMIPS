@@ -10,7 +10,7 @@ analisador = Analisador()
 
 # Inicia Pipeline
 pipelineBuffer = CSVBuffer("resources/pipeline.csv", ["IF", "ID", "EX", "MEM", "WB"], "NOP" )
-pipeline = Pipeline(pipelineBuffer, analisador)
+pipeline = Pipeline(pipelineBuffer)
 
 #Inicia Registradores
 registradores = ["pc", "$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3", "$t0", "$t1",
@@ -24,21 +24,27 @@ memoriaBuffer = CSVBuffer("resources/memoria.csv", list(range(1000)), hex(0))
 mp = MP(memoriaBuffer)
 
 analisador.setPrototipo(InstrucaoPrototipo(pipeline, mp, bancoDeRegistradores))
+pipeline.setAnalisador(analisador)
 
 # nome_arquivo_asm = input("Digite o nome do arquivo de entrada:\n")
 nome_arquivo_asm = "resources/teste"
 instrucoes = analisador.analisaArquivo(nome_arquivo_asm)
-for instrucao in instrucoes:
+
+pc = bancoDeRegistradores.getValorDoRegistrador("PC")
+while (pc / 4 < len(instrucoes)):
+    instrucao = instrucoes[int(pc/4)]
     pipeline.executaAcoesDaPipeline()
     pipeline.avancaPipeline(instrucao)
     bancoDeRegistradores.avancaCiclo()
     mp.avancaCiclo()
+    pc = bancoDeRegistradores.getValorDoRegistrador("PC")
 
 for i in range(4):
     pipeline.executaAcoesDaPipeline()
-    pipeline.avancaPipeline(NOP())
+    pipeline.avancaPipeline(NOP(analisador.prototipo))
     bancoDeRegistradores.avancaCiclo()
     mp.avancaCiclo()
+pipeline.executaAcoesDaPipeline()
 
 
 pipelineBuffer.geraArquivo()

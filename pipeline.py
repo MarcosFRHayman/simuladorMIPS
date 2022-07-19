@@ -4,14 +4,17 @@ from instrucoes import NOP, Instrucao
 
 
 class Pipeline:
-    def __init__(self, buffer: CSVBuffer, analisador: Analisador) -> None:
+    def __init__(self, buffer: CSVBuffer) -> None:
         self.buffer = buffer
+        self.analisador = None
+
+    def setAnalisador(self, analisador: Analisador):
         self.analisador = analisador
-        self.ID = NOP()
-        self.IF = NOP()
-        self.EX = NOP()
-        self.MEM = NOP()
-        self.WB = NOP()
+        self.ID = NOP(analisador.prototipo)
+        self.IF = NOP(analisador.prototipo)
+        self.EX = NOP(analisador.prototipo)
+        self.MEM = NOP(analisador.prototipo)
+        self.WB = NOP(analisador.prototipo)
 
     def avancaPipeline(self, instrucao: Instrucao):
         #trata variáveis

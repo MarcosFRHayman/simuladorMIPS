@@ -16,7 +16,9 @@ class Instrucao:
         self.prototipo = prototipo
     
     def IF(self):
-        pass
+        registradores = self.prototipo.registradores
+        pc = registradores.getValorDoRegistrador("PC")
+        registradores.setValorDoRegistrador("PC", pc + 4)
 
     def ID(self):
         pass
@@ -35,8 +37,9 @@ class Instrucao:
 
 #========= SUB-CLASSES DE INSTRUÇÃO ===========
 class NOP(Instrucao):
-    def __init__(self) -> None:
-        super().__init__(None, None, "NOP", None)
+    def __init__(self, prototipo) -> None:
+        super().__init__(None, None, "NOP", prototipo)
+        
 
 class TipoR(Instrucao):
     def __init__(self, args, posicao, comando, desc, prototipo) -> None:
@@ -71,7 +74,6 @@ class TipoI(Instrucao):
         rs = self.prototipo.registradores.getValorDoRegistrador(self.args[1])
         if self.comando != None:
             self.result = self.comando(rs, int(self.args[2]), int(self.args[2]))
-            print(self.result)
     
     def WB(self):
         super().WB()
@@ -113,7 +115,6 @@ class SW(TipoI):
     def EX(self):
         self.endereco = self.calculaEndereco(self.args[1])
         self.reg = self.prototipo.registradores.getValorDoRegistrador(self.args[0])
-        print(f"SW reg: {self.reg}\nSW end: {self.endereco}")
     
     def MEM(self):
         super().MEM()
@@ -147,7 +148,7 @@ MAP_DE_INSTRUCOES = {
     "SRL": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x / (2 ** shamt), desc, prototipo),
     "SW": lambda args, posicao, desc, prototipo: SW(args, posicao, desc, prototipo),
     "SUB": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x - y, desc, prototipo),
-    "NOP":  lambda args, posicao, desc, prototipo: NOP()
+    "NOP":  lambda args, posicao, desc, prototipo: NOP(prototipo)
 }
 
 def geraInstrucao(nome: str, args, posicao, desc: str, prototipo) -> Instrucao:
