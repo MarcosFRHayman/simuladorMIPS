@@ -33,13 +33,13 @@ instrucoes = analisador.analisaArquivo(nome_arquivo_asm)
 
 pc = bancoDeRegistradores.getValorDoRegistrador("PC")
 while (pc / 4 < len(instrucoes)):
-        pipeline.executaAcoesDaPipeline()
-        pc = bancoDeRegistradores.getValorDoRegistrador("PC")
-        try:
-            instrucao = instrucoes[int(pc/4)]
-        except IndexError:
-            instrucao = NOP("NOP", analisador.prototipo)
+        instrucao = instrucoes[int(pc/4)]
         pipeline.avancaPipeline(instrucao)
+        pipeline.executaAcoesDaPipeline()
+        # pc = bancoDeRegistradores.getValorDoRegistrador("PC")
+        # try:
+        # except IndexError:
+        #     instrucao = NOP("NOP", analisador.prototipo)
         bancoDeRegistradores.avancaCiclo()
         mp.avancaCiclo()
         pc = bancoDeRegistradores.getValorDoRegistrador("PC")

@@ -30,10 +30,10 @@ class Analisador:
         try:
             id_instrucao, primeiro_argumento = separacao[0].split(" ")
             argumentos = [primeiro_argumento] + separacao[1:]
-            return geraInstrucao(id_instrucao, argumentos, i + 1, linha, self.prototipo)
+            return geraInstrucao(id_instrucao, argumentos, i, linha, self.prototipo)
         except ValueError:
             #Gera o NOP
-            return geraInstrucao(separacao[0], None, i + 1, linha, self.prototipo)
+            return geraInstrucao(separacao[0], None, i, linha, self.prototipo)
     
     def getEnderecoDeLabel(self, label):
         return self.map_de_label[label]

@@ -73,14 +73,12 @@ class TipoI(Instrucao):
         self.comando = comando
     
     def EX(self):
-        super().EX()
         rs = self.prototipo.registradores.getValorDoRegistrador(self.args[1])
         if self.comando != None:
             self.result = self.comando(rs, int(self.args[2]), int(self.args[2]))
             print(self.result)
     
     def WB(self):
-        super().WB()
         self.prototipo.registradores.setValorDoRegistrador(self.args[0], self.result)
 
 class TipoJ(Instrucao):
@@ -111,7 +109,6 @@ class LW(TipoI):
         self.endereco = self.calculaEndereco(self.args[1])
 
     def MEM(self):
-        super().MEM()
         self.valorDaMemoria = self.prototipo.memoria.getValorDaMemoria(self.endereco)
     
     def WB(self):
@@ -132,7 +129,6 @@ class SW(TipoI):
         self.reg = self.prototipo.registradores.getValorDoRegistrador(self.args[0])
     
     def MEM(self):
-        super().MEM()
         self.prototipo.memoria.setValorDaMemoria(self.endereco, self.reg)
     
     def WB(self):
@@ -143,6 +139,24 @@ class SW(TipoI):
         #remove o fecha parenteses
         reg = reg[:-1]
         return int(imediato) + self.prototipo.registradores.getValorDoRegistrador(reg)
+
+class JAL(TipoJ):
+    def __init__(self, args, posicao, desc, prototipo) -> None:
+        super().__init__(args, posicao, desc, prototipo)
+    
+    def WB(self):
+        self.prototipo.registradores.setValorDoRegistrador("$ra", self.posicao + 1)
+
+class JR(TipoJ):
+    def __init__(self, args, posicao, desc, prototipo) -> None:
+        super().__init__(args, posicao, desc, prototipo)
+    
+    def ID(self):
+        enderecoAlvo = self.args[0]
+        enderecoAlvo = self.prototipo.registradores.getValorDoRegistrador(enderecoAlvo)
+        enderecoAlvo = int(enderecoAlvo) * 4
+        self.prototipo.registradores.setValorDoRegistrador("PC", enderecoAlvo)
+
 
 
 #========= GERADOR DE INSTRUÇÃO ===========
@@ -155,8 +169,8 @@ MAP_DE_INSTRUCOES = {
     "BEQ": lambda args, posicao, desc, prototipo: Branch(args, posicao, lambda x, y: x == y, desc, prototipo),
     "BNE": lambda args, posicao, desc, prototipo: Branch(args, posicao, lambda x, y: x != y, desc, prototipo),
     "J": lambda args, posicao, desc, prototipo: TipoJ(args, posicao, desc, prototipo),
-    "JAL": lambda args, posicao, desc, prototipo: TipoJ(args, posicao, desc, prototipo),
-    "JR": lambda args, posicao, desc, prototipo: TipoJ(args, posicao, desc, prototipo),
+    "JAL": lambda args, posicao, desc, prototipo: JAL(args, posicao, desc, prototipo),
+    "JR": lambda args, posicao, desc, prototipo: JR(args, posicao, desc, prototipo),
     "LW": lambda args, posicao, desc, prototipo: LW(args, posicao, desc, prototipo),
     "OR": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x | y, desc, prototipo),
     "SLL": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x * (2 ** shamt), desc, prototipo),
