@@ -74,6 +74,7 @@ class TipoI(Instrucao):
         rs = self.prototipo.registradores.getValorDoRegistrador(self.args[1])
         if self.comando != None:
             self.result = self.comando(rs, int(self.args[2]), int(self.args[2]))
+            print(self.result)
     
     def WB(self):
         super().WB()
@@ -136,14 +137,14 @@ class SW(TipoI):
 MAP_DE_INSTRUCOES = {
     "ADD": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x + y, desc, prototipo),
     "ADDI": lambda args, posicao, desc, prototipo: TipoI(args, posicao, lambda x, y, shamt: x + y, desc, prototipo),
-    "AND": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x and y, desc, prototipo),
+    "AND": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x & y, desc, prototipo),
     "BEQ": lambda args, posicao, desc, prototipo: Branch(args, posicao, lambda x, y: x == y, desc, prototipo),
     "BNE": lambda args, posicao, desc, prototipo: Branch(args, posicao, lambda x, y: x != y, desc, prototipo),
     "J": lambda args, posicao, desc, prototipo: TipoJ(args, posicao, desc, prototipo),
     "JAL": lambda args, posicao, desc, prototipo: TipoJ(args, posicao, desc, prototipo),
     "JR": lambda args, posicao, desc, prototipo: TipoJ(args, posicao, desc, prototipo),
     "LW": lambda args, posicao, desc, prototipo: LW(args, posicao, desc, prototipo),
-    "OR": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x or y, desc, prototipo),
+    "OR": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x | y, desc, prototipo),
     "SLL": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x * (2 ** shamt), desc, prototipo),
     "SRL": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x / (2 ** shamt), desc, prototipo),
     "SW": lambda args, posicao, desc, prototipo: SW(args, posicao, desc, prototipo),
