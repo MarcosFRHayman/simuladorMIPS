@@ -1,8 +1,9 @@
+from mp import MP
 from registradores import Registradores
 
 
 class InstrucaoPrototipo:
-    def __init__(self, pipeline, memoria, registradores: Registradores) -> None:
+    def __init__(self, pipeline, memoria: MP, registradores: Registradores) -> None:
         self.pipeline = pipeline
         self.memoria = memoria
         self.registradores = registradores
@@ -55,8 +56,8 @@ class TipoR(Instrucao):
             self.result = self.comando(rs, rd, shamt)
             print(self.result)
     
-    def MEM(self):
-        super().MEM()
+    def WB(self):
+        super().WB()
         self.prototipo.registradores.setValorDoRegistrador(self.args[0], self.result)
 
 
@@ -72,8 +73,8 @@ class TipoI(Instrucao):
             self.result = self.comando(rs, int(self.args[2]), int(self.args[2]))
             print(self.result)
     
-    def MEM(self):
-        super().MEM()
+    def WB(self):
+        super().WB()
         self.prototipo.registradores.setValorDoRegistrador(self.args[0], self.result)
 
 class TipoJ(Instrucao):
@@ -84,6 +85,49 @@ class Branch(TipoI):
     def __init__(self, args, posicao, condicao, desc, prototipo) -> None:
         super().__init__(args, posicao, None, desc, prototipo)
         self.condicao = condicao
+
+class LW(TipoI):
+    def __init__(self, args, posicao, desc, prototipo) -> None:
+        super().__init__(args, posicao, None, desc, prototipo)
+    
+    def EX(self):
+        self.endereco = self.calculaEndereco(self.args[1])
+
+    def MEM(self):
+        super().MEM()
+        self.valorDaMemoria = self.prototipo.memoria.getValorDaMemoria(self.endereco)
+    
+    def WB(self):
+        self.prototipo.registradores.setValorDoRegistrador(self.args[0], self.valorDaMemoria)
+
+    def calculaEndereco(self, arg: str):
+        imediato, reg = arg.split("(")
+        #remove o fecha parenteses
+        reg = reg[:-1]
+        return int(imediato) + self.prototipo.registradores.getValorDoRegistrador(reg)
+
+class SW(TipoI):
+    def __init__(self, args, posicao, desc, prototipo) -> None:
+        super().__init__(args, posicao, None, desc, prototipo)
+
+    def EX(self):
+        self.endereco = self.calculaEndereco(self.args[1])
+        self.reg = self.prototipo.registradores.getValorDoRegistrador(self.args[0])
+        print(f"SW reg: {self.reg}\nSW end: {self.endereco}")
+    
+    def MEM(self):
+        super().MEM()
+        self.prototipo.memoria.setValorDaMemoria(self.endereco, self.reg)
+    
+    def WB(self):
+        pass
+
+    def calculaEndereco(self, arg: str):
+        imediato, reg = arg.split("(")
+        #remove o fecha parenteses
+        reg = reg[:-1]
+        return int(imediato) + self.prototipo.registradores.getValorDoRegistrador(reg)
+
 
 #========= GERADOR DE INSTRUÇÃO ===========
 
@@ -97,11 +141,11 @@ MAP_DE_INSTRUCOES = {
     "J": lambda args, posicao, desc, prototipo: TipoJ(args, posicao, desc, prototipo),
     "JAL": lambda args, posicao, desc, prototipo: TipoJ(args, posicao, desc, prototipo),
     "JR": lambda args, posicao, desc, prototipo: TipoJ(args, posicao, desc, prototipo),
-    "LW": lambda args, posicao, desc, prototipo: TipoI(args, posicao, None, desc, prototipo),
+    "LW": lambda args, posicao, desc, prototipo: LW(args, posicao, desc, prototipo),
     "OR": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x or y, desc, prototipo),
     "SLL": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x * (2 ** shamt), desc, prototipo),
     "SRL": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x / (2 ** shamt), desc, prototipo),
-    "SW": lambda args, posicao, desc, prototipo: TipoI(args, posicao, None, desc, prototipo),
+    "SW": lambda args, posicao, desc, prototipo: SW(args, posicao, desc, prototipo),
     "SUB": lambda args, posicao, desc, prototipo: TipoR(args, posicao, lambda x, y, shamt: x - y, desc, prototipo),
     "NOP":  lambda args, posicao, desc, prototipo: NOP()
 }

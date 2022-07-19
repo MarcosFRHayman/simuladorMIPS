@@ -33,7 +33,6 @@ class Pipeline:
         self.buffer.setValorDaColuna("EX", ID)
         self.buffer.setValorDaColuna("ID", IF)
         self.buffer.setValorDaColuna("IF", instrucao.gerarDescricao())
-        self.buffer.setValorDaColuna("PC", 1)
 
     def executaAcoesDaPipeline(self):
         self.IF.IF()

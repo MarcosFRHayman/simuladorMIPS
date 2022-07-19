@@ -8,7 +8,7 @@ class Registradores:
         id = id.lower().strip()
         return int(self.buffer.getValorDaColuna(id))
     
-    def setValorDoRegistrador(self, id, valor):
+    def setValorDoRegistrador(self, id: str, valor):
         id = id.lower().strip()
         self.buffer.setValorDaColuna(id, valor)
     
