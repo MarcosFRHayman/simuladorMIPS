@@ -3,6 +3,7 @@ from csvBuffer import CSVBuffer
 class Registradores:
     def __init__(self, buffer: CSVBuffer) -> None:
         self.buffer = buffer
+        self.buffer.setValorDaColuna("$sp", 3996)
     
     def getValorDoRegistrador(self, id: str):
         id = id.lower().strip()

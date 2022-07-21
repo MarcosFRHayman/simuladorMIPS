@@ -39,10 +39,13 @@ class Pipeline:
         self.buffer.setValorDaColuna("IF", instrucao.gerarDescricao())
 
     def executaAcoesDaPipeline(self):
+        #WB escreve nos registradores na subida do clock
+        self.WB.WB()
+
+        #Outras instruções rodam na descida do clock
         self.IF.IF()
         self.ID.ID()
         self.EX.EX()
         self.MEM.MEM()
-        self.WB.WB()
 
         

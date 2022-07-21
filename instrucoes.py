@@ -1,6 +1,9 @@
 from mp import MP
 from registradores import Registradores
 
+class ReadonlyRegisterException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
 class InstrucaoPrototipo:
     def __init__(self, pipeline, memoria: MP, registradores: Registradores) -> None:
@@ -49,21 +52,28 @@ class TipoR(Instrucao):
         super().__init__(args, posicao, desc, prototipo)
         self.comando = comando
 
+    def ID(self):
+        super().ID()
+        self.rs = self.prototipo.registradores.getValorDoRegistrador(self.args[1])
+        self.rd = None
+        self.shamt = None
+        try:
+            self.shamt = int(self.args[2])
+        except ValueError:
+            self.rd = self.prototipo.registradores.getValorDoRegistrador(self.args[2])
+
+
     def EX(self):
         super().EX()
-        rs = self.prototipo.registradores.getValorDoRegistrador(self.args[1])
-        rd = None
-        shamt = None
-        try:
-            shamt = int(self.args[2])
-        except ValueError:
-            rd = self.prototipo.registradores.getValorDoRegistrador(self.args[2])
         if self.comando != None:
-            self.result = self.comando(rs, rd, shamt)
+            self.result = self.comando(self.rs, self.rd, self.shamt)
     
     def WB(self):
         super().WB()
-        self.prototipo.registradores.setValorDoRegistrador(self.args[0], self.result)
+        arg0 = self.args[0].lower().strip()
+        if arg0 == "pc" or arg0 == "$zero":
+            raise Exception("Tentando escrever em registrador de somente leitura")
+        self.prototipo.registradores.setValorDoRegistrador(arg0, self.result)
 
 
 class TipoI(Instrucao):
@@ -71,13 +81,19 @@ class TipoI(Instrucao):
         super().__init__(args, posicao, desc, prototipo)
         self.comando = comando
     
+    def ID(self):
+        super().ID()
+        self.rs =  self.prototipo.registradores.getValorDoRegistrador(self.args[1])
+    
     def EX(self):
-        rs = self.prototipo.registradores.getValorDoRegistrador(self.args[1])
         if self.comando != None:
-            self.result = self.comando(rs, int(self.args[2]), int(self.args[2]))
+            self.result = self.comando(self.rs, int(self.args[2]), int(self.args[2]))
     
     def WB(self):
-        self.prototipo.registradores.setValorDoRegistrador(self.args[0], self.result)
+        arg0 = self.args[0].lower().strip()
+        if arg0 == "pc" or arg0 == "$zero":
+            raise Exception("Tentando escrever em registrador de somente leitura")
+        self.prototipo.registradores.setValorDoRegistrador(arg0, self.result)
 
 class TipoJ(Instrucao):
     def __init__(self, args, posicao, desc, prototipo) -> None:
@@ -86,9 +102,9 @@ class TipoJ(Instrucao):
     def ID(self):
         super().ID()
         enderecoAlvo = self.args[0]
-        if (type(enderecoAlvo) is int):
-            enderecoAlvo = enderecoAlvo * 4
-        elif(type(enderecoAlvo) is str):
+        try:
+            enderecoAlvo = int(enderecoAlvo) * 4
+        except ValueError:    
             enderecoAlvo = self.prototipo.analisador.getEnderecoDeLabel(enderecoAlvo.upper().strip())
             enderecoAlvo = int(enderecoAlvo) * 4
         self.prototipo.registradores.setValorDoRegistrador("PC", enderecoAlvo)
@@ -99,6 +115,9 @@ class LW(TipoI):
     def __init__(self, args, posicao, desc, prototipo) -> None:
         super().__init__(args, posicao, None, desc, prototipo)
     
+    def ID(self):
+        pass
+
     def EX(self):
         self.endereco = self.calculaEndereco(self.args[1])
 
@@ -118,7 +137,7 @@ class SW(TipoI):
     def __init__(self, args, posicao, desc, prototipo) -> None:
         super().__init__(args, posicao, None, desc, prototipo)
 
-    def EX(self):
+    def ID(self):
         self.endereco = self.calculaEndereco(self.args[1])
         self.reg = self.prototipo.registradores.getValorDoRegistrador(self.args[0])
     
@@ -165,15 +184,22 @@ class JAL(TipoJ):
     def WB(self):
         self.prototipo.registradores.setValorDoRegistrador("$ra", self.posicao + 1)
 
-class JR(TipoJ):
+class JR(TipoR):
     def __init__(self, args, posicao, desc, prototipo) -> None:
-        super().__init__(args, posicao, desc, prototipo)
+        super().__init__(args, posicao, None, desc, prototipo)
     
     def ID(self):
         enderecoAlvo = self.args[0]
         enderecoAlvo = self.prototipo.registradores.getValorDoRegistrador(enderecoAlvo)
         enderecoAlvo = int(enderecoAlvo) * 4
         self.prototipo.registradores.setValorDoRegistrador("PC", enderecoAlvo)
+    
+    def EX(self):
+        pass
+    def MEM(self):
+        pass
+    def WB(self):
+        pass
 
 
 
