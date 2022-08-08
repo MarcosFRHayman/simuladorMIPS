@@ -1,0 +1,15 @@
+ADDI $T0, $T0, 5
+ADDI $A0, $ZERO, 3
+JAL _MULT2
+NOP
+SLL $T2, $V0, 2
+ADD $T1, $T1, $T0
+SW $T0, 11($T0)
+LW $T2, 11($T0)
+NOP
+J _END
+_MULT2: ADD $V0, $A0, $A0
+NOP
+JR $ra
+_END: NOP
+NOP
